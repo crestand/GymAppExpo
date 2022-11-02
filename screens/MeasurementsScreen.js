@@ -1,4 +1,4 @@
-import { StyleSheet, View } from 'react-native'
+import { StyleSheet, View,ScrollView } from 'react-native'
 import React, { useState, useEffect, useCallback } from 'react'
 import { TextInput, Button, Text, DataTable, List, Modal, Portal, Provider } from 'react-native-paper';
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -67,57 +67,40 @@ const MeasurementsScreen = () => {
 
 
   return (
-    <View style={styles.container}>
-
-      <View style={{ flex: 0.5 }}></View>
-      <View style={{ flex: 2, }}>
-
-
-        <View style={[styles.avatarContainer, { flex: 0.5, backgroundColor: "orange", flexDirection: "row" }]}>
+    <ScrollView style={styles.container}>
+      <View style={{ flex: 2}}>
+        <View style={[styles.avatarContainer, { flex: 0.5, flexDirection: "row" }]}>
           <Text style={styles.h1}>Waist</Text>
-
-
           <Text style={styles.h1}>Shoulder</Text>
-
         </View>
 
-        <View style={[styles.avatarContainer, { flex: 1, backgroundColor: "darkorange", flexDirection: "row" }]}>
-          {/* <Text style={styles.h1}> Waist</Text> */}
-
+        <View style={[styles.avatarContainer, { flex: 1, flexDirection: "row" }]}>
           <TextInput
             placeholder="Cm"
             style={styles.input}
             activeUnderlineColor="white"
             mode='flat'
           />
-
-          {/* <Text style={styles.h1}>Shoulder</Text> */}
           <TextInput
             placeholder="Cm"
             style={styles.input}
             activeUnderlineColor="white"
             mode='flat'
           />
-
         </View>
 
-
-
-        <View style={[styles.avatarContainer, { flex: 0.5, backgroundColor: "blue", flexDirection: "row" }]}>
+        <View style={[styles.avatarContainer, { flex: 0.5, flexDirection: "row", marginTop:15 }]}>
           <Text style={styles.h1}>Weight</Text>
           <Text style={styles.h1}>Date</Text>
-
         </View>
 
-        <View style={[styles.avatarContainer, { flex: 1, backgroundColor: "green", flexDirection: "row" }]}>
-
+        <View style={[styles.avatarContainer, { flex: 1, flexDirection: "row" }]}>
           <TextInput
             placeholder="kg"
             style={styles.input}
             activeUnderlineColor="white"
             mode='flat'
           />
-
           <Button onPress={showDatepicker} mode="contained" style={styles.button}>
             <Text style={styles.h2}>{date.toLocaleDateString()}</Text>
           </Button>
@@ -138,106 +121,15 @@ const MeasurementsScreen = () => {
         </View>
 
       </View>
-      <View style={{ flex: 0.5 }}>
-      <Button onPress={showDatepicker} mode="contained" style={styles.button}>
-            <Text style={styles.h2}>SAVE</Text>
-          </Button>
+      <View style={{ flex: 0.5, marginTop:20 }}>
+        <Button onPress={showDatepicker} mode="contained" style={styles.button}>
+          <Text style={styles.h2}>SAVE</Text>
+        </Button>
       </View>
 
       <View
         style={{ flex: 2, flexDirection: "row" }}>
-
-        {/* <View style={[styles.avatarContainer, { flex: 1, backgroundColor: "orange" }]}>
-          <Text style={styles.avatarName}>Trainer Name</Text>
-          <Avatar.Image size={128} style={styles.avatar} />
-        </View> */}
-
-        <View style={[{ flex: 1, backgroundColor: "blue" }]}>
-          {/* <DataTable style={styles.dataTable} >
-            <DataTable.Header>
-              <DataTable.Title sortDirection='ascending'>Waist</DataTable.Title>
-              <DataTable.Title>Shoulder</DataTable.Title>
-              <DataTable.Title>Weight</DataTable.Title>
-              <DataTable.Title>Date</DataTable.Title>
-
-            </DataTable.Header>
-
-            <DataTable.Row>
-              <DataTable.Cell>60</DataTable.Cell>
-              <DataTable.Cell>80</DataTable.Cell>
-              <DataTable.Cell>85</DataTable.Cell>
-              <DataTable.Cell>85</DataTable.Cell>
-
-            </DataTable.Row>
-
-            <DataTable.Row>
-              <DataTable.Cell>10</DataTable.Cell>
-              <DataTable.Cell>40</DataTable.Cell>
-              <DataTable.Cell>20</DataTable.Cell>
-              <DataTable.Cell>85</DataTable.Cell>
-            </DataTable.Row>
-            <DataTable.Row>
-              <DataTable.Cell>60</DataTable.Cell>
-              <DataTable.Cell>80</DataTable.Cell>
-              <DataTable.Cell>85</DataTable.Cell>
-              <DataTable.Cell>85</DataTable.Cell>
-
-            </DataTable.Row>
-
-            <DataTable.Row>
-              <DataTable.Cell>10</DataTable.Cell>
-              <DataTable.Cell>40</DataTable.Cell>
-              <DataTable.Cell>20</DataTable.Cell>
-              <DataTable.Cell>85</DataTable.Cell>
-            </DataTable.Row>
-            <DataTable.Row>
-              <DataTable.Cell>60</DataTable.Cell>
-              <DataTable.Cell>80</DataTable.Cell>
-              <DataTable.Cell>85</DataTable.Cell>
-              <DataTable.Cell>85</DataTable.Cell>
-
-            </DataTable.Row>
-
-            <DataTable.Row>
-              <DataTable.Cell>10</DataTable.Cell>
-              <DataTable.Cell>40</DataTable.Cell>
-              <DataTable.Cell>20</DataTable.Cell>
-              <DataTable.Cell>85</DataTable.Cell>
-            </DataTable.Row>
-
-            <DataTable.Pagination
-              page={page}
-              numberOfPages={3}
-              onPageChange={(page) => setPage(page)}
-              label="1-2 of 6"
-              optionsPerPage={optionsPerPage}
-              itemsPerPage={itemsPerPage}
-              setItemsPerPage={setItemsPerPage}
-              showFastPagination
-              optionsLabel={'Rows per page'}
-            />
-          </DataTable> */}
-
-          {/* <List.Section title="Accordions">
-            <List.Accordion
-              title="Uncontrolled Accordion"
-              left={props => <List.Icon {...props} icon="folder" />}>
-              <List.Item title="First item" />
-              <List.Item title="Second item" />
-            </List.Accordion>
-
-            <List.Accordion
-              title="Controlled Accordion"
-              left={props => <List.Icon {...props} icon="folder" />}
-              expanded={expanded}
-              onPress={handlePress}>
-              <List.Item title="First item" />
-              <List.Item title="Second item" />
-            </List.Accordion>
-          </List.Section> */}
-
-
-
+        <View style={[{ flex: 1, }]}>
           <Provider>
             <Portal>
               <Modal visible={visible} onDismiss={hideModal} contentContainerStyle={containerStyle}>
@@ -253,7 +145,7 @@ const MeasurementsScreen = () => {
 
       </View>
       <View style={{ flex: 1 }}></View>
-    </View >
+    </ScrollView >
 
 
 
@@ -265,6 +157,7 @@ export default MeasurementsScreen
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    paddingTop:100
   },
   avatarContainer: {
 

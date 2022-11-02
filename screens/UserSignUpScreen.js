@@ -110,7 +110,7 @@ const UserSignUpScreen = () => {
     }
 
     function validatePhoneNumber(phoneNumber) {
-        let check = /^05[0-9]{9}$)/;
+        //let check = /^05[0-9]{9}$)/;
         if (phoneNumber.match(check)) {
             return true;
         } else {

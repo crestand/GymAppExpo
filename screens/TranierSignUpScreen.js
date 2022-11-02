@@ -110,7 +110,7 @@ const TranierSignUpScreen = () => {
     }
 
     function validatePhoneNumber(phoneNumber) {
-        let check = /^05[0-9]{9}$)/;
+        //let check = /^05[0-9]{9}$)/;
         if (phoneNumber.match(check)) {
             return true;
         } else {
@@ -150,62 +150,37 @@ const TranierSignUpScreen = () => {
 
     const [checked, setChecked] = useState(false);
 
-    const data = [
-        { id: 1, txt: 'Monday', isChecked: false },
-        { id: 2, txt: 'Tuesday', isChecked: false },
-        { id: 3, txt: 'Wednesday', isChecked: false },
-        { id: 4, txt: 'Thursday', isChecked: false },
-        { id: 5, txt: 'Friday', isChecked: false },
+    const daysMock = [
+        { id: 1, txt: 'Monday'},
+        { id: 2, txt: 'Tuesday'},
+        { id: 3, txt: 'Wednesday'},
+        { id: 4, txt: 'Thursday' },
+        { id: 5, txt: 'Friday' },
     ];
 
-    const [products, setProducts] = useState(data);
+    const [days, setDays] = useState([]);
 
-    const handleChange = (id) => {
+    // const handleChange = (id) => {
 
-        let temp = products.map((product) => {
-            if (id === product.id) {
-                //console.log(product.isChecked)
-                return { ...product, isChecked: !product.isChecked };
+    //     let temp = products.map((product) => {
+    //         if (id === product.id) {
+    //             //console.log(product.isChecked)
+    //             return { ...product, isChecked: !product.isChecked };
 
-            }
-            return product;
-        });
-        //console.log(temp)
-        setProducts(temp);
-    };
-
-    const renderFlatList = (renderData) => {
-        return (
-            <FlatList
-                data={renderData}
-                renderItem={({ item }) => (
-                    <View >
-                        <View
-                            style={{
-                                flexDirection: 'row',
-                                flex: 1,
-                                //justifyContent: 'space-between',
-                            }}>
-                            <Checkbox
-                                onChange={() => {
-                                    console.log(item.isChecked)
-                                    handleChange(item.id);
-                                    console.log(item.isChecked)
-                                }}
-                                onPress={() => {
-
-                                    handleChange(item.id);
-
-                                }}
-                                status={item.isChecked}
-                            />
-                            <Text>{item.txt}</Text>
-                        </View>
-                    </View>
-                )}
-            />
-        );
-    };
+    //         }
+    //         return product;
+    //     });
+    //     //console.log(temp)
+    //     setProducts(temp);
+    // };
+    const handleChangeDays = (dayId) => {
+        if (days.indexOf(dayId) === -1) {
+            setDays((prev) => [...prev, dayId])
+        }
+        else {
+            setDays(days.filter(x => x !== dayId))
+        }
+    }
 
     return (
         <Provider>
@@ -254,13 +229,13 @@ const TranierSignUpScreen = () => {
 
                     <View flexDirection='row' alignItems='center' justifyContent='space-between'>
 
-                        <Text style={[styles.buttonOutlineText, {flex:1.5}]}  >Birth Date</Text>
+                        <Text style={[styles.buttonOutlineText, { flex: 1.5 }]}  >Birth Date</Text>
 
                         <Button
                             placeholder="Age"
                             value={date.toLocaleDateString()}
                             onPress={showDatepicker}
-                            style={[styles.input, {flex:2}]}
+                            style={[styles.input, { flex: 2 }]}
                         >
                             <Text> {date.toLocaleDateString()} </Text>
                         </Button></View>
@@ -312,7 +287,18 @@ const TranierSignUpScreen = () => {
 
                                 <Dialog.Title>Choose Available Days</Dialog.Title>
                                 <Dialog.Content>
-                                    {renderFlatList(products)}
+                                    {/* {renderFlatList(products)} */}
+                                    {
+                                        daysMock.map(day => {
+                                            const checked = days.indexOf(day.id) !== -1;
+                                            return (
+                                                <View key={day.id} style={{ display: "flex",flexDirection:"row", alignItems:"center" }} onTouchEnd={() => {}}>
+                                                    <Checkbox onPress={() => handleChangeDays(day.id)} status={checked? "checked" : "unchecked"} />
+                                                    <Text style={{color: checked ? "blue" : "gray" }}>{day.txt}</Text>
+                                                </View>
+                                            )
+                                        })
+                                    }
                                 </Dialog.Content>
 
                                 <Dialog.Actions>
