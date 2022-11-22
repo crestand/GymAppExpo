@@ -190,7 +190,6 @@ const TranierSignUpScreen = () => {
             >
                 <View style={styles.inputContainer}>
 
-
                     <TextInput
                         placeholder="Name"
                         style={styles.input}
@@ -287,7 +286,7 @@ const TranierSignUpScreen = () => {
 
                                 <Dialog.Title>Choose Available Days</Dialog.Title>
                                 <Dialog.Content>
-                                    {/* {renderFlatList(products)} */}
+                                    
                                     {
                                         daysMock.map(day => {
                                             const checked = days.indexOf(day.id) !== -1;

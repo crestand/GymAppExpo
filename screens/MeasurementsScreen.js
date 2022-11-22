@@ -182,6 +182,7 @@ const styles = StyleSheet.create({
   h2: {
     fontWeight: "600",
     fontSize: 25,
+    color:'white',
   },
   input: {
     width: '40%',

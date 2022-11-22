@@ -24,21 +24,21 @@ const HomeScreen = () => {
                 style={styles.button}
                 onPress={() => {navigation.push("Measurements")}}
             >
-                <Text>My Measurements</Text>
+                <Text style={styles.buttonText}>My Measurements</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
                 style={styles.button}
                 onPress={() => {navigation.push("MyWorkouts")}}
             >
-                <Text>Workouts</Text>
+                <Text style={styles.buttonText}>Workouts</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
                 style={styles.button}
                 onPress={() => {navigation.push("SendFeedback")}}
             >
-                <Text>Send a Feedback</Text>
+                <Text style={styles.buttonText}>Send a Feedback</Text>
             </TouchableOpacity>
 
             <TouchableOpacity

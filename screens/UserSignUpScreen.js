@@ -172,13 +172,11 @@ const UserSignUpScreen = () => {
                     <TextInput
                         placeholder="Name"
                         style={styles.input}
-
                     />
 
                     <TextInput
                         placeholder="Last Name"
                         style={styles.input}
-
                     />
 
                     <TextInput
@@ -194,7 +192,6 @@ const UserSignUpScreen = () => {
                         onChangeText={text => setPassword(text)}
                         style={styles.input}
                         secureTextEntry
-
                     />
 
                     <TextInput
@@ -216,8 +213,6 @@ const UserSignUpScreen = () => {
                         placeholder="Phone Number"
                         style={styles.input}
                         keyboardType='phone-pad'
-
-
                     />
 
                     {show && (
@@ -230,27 +225,21 @@ const UserSignUpScreen = () => {
                         />
                     )}
 
-
                     <TextInput
                         placeholder="Waist - cm"
                         style={styles.input}
                         keyboardType='decimal-pad'
-
-
                     />
                     <TextInput
                         placeholder="Shoulder - cm"
                         style={styles.input}
                         keyboardType='decimal-pad'
-
-
                     />
+
                     <TextInput
                         placeholder="Weight - kg"
                         style={styles.input}
                         keyboardType='decimal-pad'
-
-
                     />
 
                 </View>
@@ -277,7 +266,6 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-
     },
     inputContainer: {
         width: "80%"
@@ -319,7 +307,6 @@ const styles = StyleSheet.create({
         fontSize: 16,
     },
     chip: {
-
         justifyContent: "center",
         width: '50%'
     }
