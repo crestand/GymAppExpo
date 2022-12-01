@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigation } from "@react-navigation/native";
 import {
   KeyboardAvoidingView,
@@ -7,41 +7,21 @@ import {
   TextInput,
   TouchableOpacity,
   View,
-  FlatList,
+  ScrollView,
 } from "react-native";
 import { auth } from "../firebaseConfig";
 
-import {
-  Button,
-  Chip,
-  Provider,
-  Portal,
-  Dialog,
-  Checkbox,
-} from "react-native-paper";
+import { Button, Provider, Portal, Dialog, Checkbox } from "react-native-paper";
 import DateTimePicker from "@react-native-community/datetimepicker";
-import * as SQLite from "expo-sqlite";
-import * as FileSystem from "expo-file-system";
 import { validateTrainer } from "../utils/validation";
-
-function openDatabase() {
-  if (
-    !FileSystem.getInfoAsync(FileSystem.documentDirectory + "SQLite").exists
-  ) {
-    FileSystem.makeDirectoryAsync(FileSystem.documentDirectory + "SQLite");
-  }
-
-  console.log("before db creation");
-  const db = SQLite.openDatabase("MainDB.db");
-  console.log("after db creation");
-  console.log(db);
-
-  return db;
-}
-
-// const db = openDatabase();
+import * as firebase from "firebase";
+import { uid } from "uid";
 
 const TranierSignUpScreen = () => {
+  useEffect(() => {}, []);
+
+  const navigation = useNavigation();
+
   const [user, setUser] = useState({
     name: "",
     lastName: "",
@@ -50,88 +30,43 @@ const TranierSignUpScreen = () => {
     gender: "",
     date: new Date(),
     phoneNumber: "",
+    workdays: [],
+    expertise: [],
   });
-
-  const navigation = useNavigation();
-
-  // const db = SQLite.openDatabase(
-  //     {
-  //         name: 'MainDB',
-  //         location: 'default',
-  //     },
-  //     () => { },
-  //     error => { console.log(error) }
-
-  // );
-
-  useEffect(() => {
-    // createTable();
-    // setData();
-    // getData();
-  }, []);
-
-  const createTable = () => {
-    db.transaction((tx) => {
-      tx.executeSql(
-        "create table if not exists Users (id integer primary key autoincrement, NAme TEXT, Age INTEGER);"
-      );
-    });
-  };
-
-  const setData = async () => {
-    try {
-      await db.transaction(async (tx) => {
-        await tx.executeSql(
-          "insert into Users (name,Age) VALUES (?,?);",
-          ["Eren", 15],
-          (tx, results) => {
-            console.log("after insert success");
-          }
-        );
-      }, console.log("after insert"));
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  const getData = () => {
-    try {
-      db.transaction((tx) => {
-        tx.executeSql("SELECT Name, Age FROM Users", [], (tx, results) => {
-          var len = results.rows.length;
-          if (len > 0) {
-            var userName = results.rows.item(0).NAme;
-            var userAge = results.rows.item(0).Age;
-            console.log("From db Name: " + userName + " Age: " + userAge);
-          }
-        });
-      }, console.log("after get data"));
-    } catch (error) {
-      console.log(error);
-    }
-  };
 
   const handleSignUp = () => {
     if (validateTrainer(user)) {
+      console.log("Validated Trainer");
+      //console.log(user);
+      let originalUser = auth.currentUser;
+      //console.log(originalUser);
       auth
-        .createUserWithEmailAndPassword(email, password)
+        .createUserWithEmailAndPassword(user.email, user.password)
         .then((userCredentials) => {
-          const user = userCredentials.user;
-          console.log("Registered with:", user.email);
+          const userData = {
+            id: userCredentials.user.uid,
+            name: user.name,
+            lastName: user.lastName,
+            email: user.email,
+            gender: user.gender,
+            birthDate: user.date,
+            phoneNumber: user.phoneNumber,
+            role: "trainer",
+          };
+
+          const trainerData = {
+            id: uid(),
+            user_id: userCredentials.user.uid,
+            workdays: days,
+            expertise: expertises,
+          };
+          firebase.firestore().collection("user").add(userData);
+          firebase.firestore().collection("trainer_info").add(trainerData);
+          // auth.updateCurrentUser(originalUser);
         })
         .catch((error) => alert(error.message));
-    }
+    } else console.log("invalid trainer info");
   };
-
-  function validatePhoneNumber(phoneNumber) {
-    //let check = /^05[0-9]{9}$)/;
-    if (phoneNumber.match(check)) {
-      return true;
-    } else {
-      console.log("Meh, not so much.");
-      return false;
-    }
-  }
 
   const [mode, setMode] = useState("date");
   const [show, setShow] = useState(false);
@@ -156,12 +91,15 @@ const TranierSignUpScreen = () => {
   };
 
   const [select, setSelect] = useState(false);
-
-  const [visible, setVisible] = useState(false);
-  const showDialog = () => setVisible(true);
-  const hideDialog = () => setVisible(false);
-
   const [checked, setChecked] = useState(false);
+
+  const [expertiseVisible, setExpertiseVisible] = useState(false);
+  const [daysVisible, setDaysVisible] = useState(false);
+
+  const showDaysDialog = () => setDaysVisible(true);
+  const hideDaysDialog = () => setDaysVisible(false);
+  const showExpertiseDialog = () => setExpertiseVisible(true);
+  const hideExpertiseDialog = () => setExpertiseVisible(false);
 
   const daysMock = [
     { id: 1, txt: "Monday" },
@@ -171,21 +109,17 @@ const TranierSignUpScreen = () => {
     { id: 5, txt: "Friday" },
   ];
 
+  const expertiseMock = [
+    { id: 1, txt: "Boxing" },
+    { id: 2, txt: "Karate" },
+    { id: 3, txt: "Yoga" },
+    { id: 4, txt: "Fitness" },
+    { id: 5, txt: "Cardio" },
+  ];
+
   const [days, setDays] = useState([]);
+  const [expertises, setExpertises] = useState([]);
 
-  // const handleChange = (id) => {
-
-  //     let temp = products.map((product) => {
-  //         if (id === product.id) {
-  //             //console.log(product.isChecked)
-  //             return { ...product, isChecked: !product.isChecked };
-
-  //         }
-  //         return product;
-  //     });
-  //     //console.log(temp)
-  //     setProducts(temp);
-  // };
   const handleChangeDays = (dayId) => {
     if (days.indexOf(dayId) === -1) {
       setDays((prev) => [...prev, dayId]);
@@ -194,144 +128,200 @@ const TranierSignUpScreen = () => {
     }
   };
 
+  const handleChangeExpertise = (expertiseId) => {
+    if (expertises.indexOf(expertiseId) === -1) {
+      setExpertises((prev) => [...prev, expertiseId]);
+    } else {
+      setExpertises(expertises.filter((x) => x !== expertiseId));
+    }
+  };
+
   return (
     <Provider>
-      <KeyboardAvoidingView style={styles.container} behaviour="padding">
-        <View style={styles.inputContainer}>
-          <TextInput
-            placeholder="Name"
-            style={styles.input}
-            onChangeText={(text) => {
-              user.name = text;
-              setUser(user);
-            }}
-          />
-
-          <TextInput
-            placeholder="Last Name"
-            style={styles.input}
-            onChangeText={(text) => {
-              user.lastName = text;
-              setUser(user);
-            }}
-          />
-
-          <TextInput
-            placeholder="Email"
-            style={styles.input}
-            keyboardType="email-address"
-            onChangeText={(text) => {
-              user.email = text;
-              setUser(user);
-            }}
-          />
-          <TextInput
-            placeholder="Password"
-            style={styles.input}
-            onChangeText={(text) => {
-              user.password = text;
-              setUser(user);
-            }}
-            secureTextEntry
-          />
-
-          <TextInput
-            placeholder="Gender"
-            style={styles.input}
-            onChangeText={(text) => {
-              user.gender = text;
-              setUser(user);
-            }}
-          />
-
-          <View
-            flexDirection="row"
-            alignItems="center"
-            justifyContent="space-between"
-          >
-            <Text style={[styles.buttonOutlineText, { flex: 1.5 }]}>
-              Birth Date
-            </Text>
-
-            <Button
-              placeholder="Birth Date"
-              value={user.date.toLocaleDateString()}
-              onPress={showDatepicker}
-              style={[styles.input, { flex: 2 }]}
-            >
-              <Text> {user.date.toLocaleDateString()} </Text>
-            </Button>
-          </View>
-
-          <TextInput
-            placeholder="Phone Number"
-            style={styles.input}
-            onChangeText={(text) => {
-              user.phoneNumber = text;
-              setUser(user);
-            }}
-            keyboardType="phone-pad"
-          />
-
-          <View>
-            <Button onPress={showDialog}>Choose Available Days</Button>
-            <Portal>
-              <Dialog visible={visible} onDismiss={hideDialog}>
-                <Dialog.Title>Choose Available Days</Dialog.Title>
-                <Dialog.Content>
-                  {daysMock.map((day) => {
-                    const checked = days.indexOf(day.id) !== -1;
-                    return (
-                      <View
-                        key={day.id}
-                        style={{
-                          display: "flex",
-                          flexDirection: "row",
-                          alignItems: "center",
-                        }}
-                        onTouchEnd={() => {}}
-                      >
-                        <Checkbox
-                          onPress={() => handleChangeDays(day.id)}
-                          status={checked ? "checked" : "unchecked"}
-                        />
-                        <Text style={{ color: checked ? "blue" : "gray" }}>
-                          {day.txt}
-                        </Text>
-                      </View>
-                    );
-                  })}
-                </Dialog.Content>
-
-                <Dialog.Actions>
-                  <Button onPress={hideDialog}>Done</Button>
-                </Dialog.Actions>
-              </Dialog>
-            </Portal>
-          </View>
-
-          {show && (
-            <DateTimePicker
-              testID="dateTimePicker"
-              value={user.date}
-              mode={mode}
-              is24Hour={true}
-              onChange={onChangeDate}
+      <ScrollView>
+        <View style={{ height: 100 }}></View>
+        <KeyboardAvoidingView style={styles.container} behaviour="padding">
+          <View style={styles.inputContainer}>
+            <TextInput
+              placeholder="Name"
+              style={styles.input}
+              onChangeText={(text) => {
+                user.name = text;
+                setUser(user);
+              }}
             />
-          )}
-        </View>
 
-        <View style={styles.buttonContainer}>
-          <TouchableOpacity
-            onPress={() => {
-              handleSignUp();
-            }}
-            style={[styles.button, styles.buttonOutline]}
-          >
-            <Text style={styles.buttonOutlineText}>Register</Text>
-          </TouchableOpacity>
-        </View>
-      </KeyboardAvoidingView>
+            <TextInput
+              placeholder="Last Name"
+              style={styles.input}
+              onChangeText={(text) => {
+                user.lastName = text;
+                setUser(user);
+              }}
+            />
+
+            <TextInput
+              placeholder="Email"
+              style={styles.input}
+              keyboardType="email-address"
+              onChangeText={(text) => {
+                user.email = text;
+                setUser(user);
+              }}
+            />
+            <TextInput
+              placeholder="Password"
+              style={styles.input}
+              onChangeText={(text) => {
+                user.password = text;
+                setUser(user);
+              }}
+              secureTextEntry
+            />
+
+            <TextInput
+              placeholder="Gender"
+              style={styles.input}
+              onChangeText={(text) => {
+                user.gender = text;
+                setUser(user);
+              }}
+            />
+
+            <View
+              flexDirection="row"
+              alignItems="center"
+              justifyContent="space-between"
+            >
+              <Text style={[styles.buttonOutlineText, { flex: 1.5 }]}>
+                Birth Date
+              </Text>
+
+              <Button
+                placeholder="Birth Date"
+                value={user.date.toLocaleDateString()}
+                onPress={showDatepicker}
+                style={[styles.input, { flex: 2 }]}
+              >
+                <Text> {user.date.toLocaleDateString()} </Text>
+              </Button>
+            </View>
+
+            <TextInput
+              placeholder="Phone Number"
+              style={styles.input}
+              onChangeText={(text) => {
+                user.phoneNumber = text;
+                setUser(user);
+              }}
+              keyboardType="phone-pad"
+            />
+
+            <View>
+              <Button onPress={showDaysDialog}>Choose Available Days</Button>
+              <Portal>
+                <Dialog visible={daysVisible} onDismiss={hideDaysDialog}>
+                  <Dialog.Title>Choose Available Days</Dialog.Title>
+                  <Dialog.Content>
+                    {daysMock.map((day) => {
+                      const checked = days.indexOf(day.txt) !== -1;
+                      return (
+                        <View
+                          key={day.txt}
+                          style={{
+                            display: "flex",
+                            flexDirection: "row",
+                            alignItems: "center",
+                          }}
+                          onTouchEnd={() => {}}
+                        >
+                          <Checkbox
+                            onPress={() => handleChangeDays(day.txt)}
+                            status={checked ? "checked" : "unchecked"}
+                          />
+                          <Text style={{ color: checked ? "blue" : "gray" }}>
+                            {day.txt}
+                          </Text>
+                        </View>
+                      );
+                    })}
+                  </Dialog.Content>
+
+                  <Dialog.Actions>
+                    <Button onPress={hideDaysDialog}>Done</Button>
+                  </Dialog.Actions>
+                </Dialog>
+              </Portal>
+            </View>
+
+            <View>
+              <Button onPress={showExpertiseDialog}>Choose Expertise</Button>
+              <Portal>
+                <Dialog
+                  visible={expertiseVisible}
+                  onDismiss={hideExpertiseDialog}
+                >
+                  <Dialog.Title>Choose Expertise</Dialog.Title>
+                  <Dialog.Content>
+                    {expertiseMock.map((expertise) => {
+                      const checked = expertises.indexOf(expertise.txt) !== -1;
+                      return (
+                        <View
+                          key={expertise.txt}
+                          style={{
+                            display: "flex",
+                            flexDirection: "row",
+                            alignItems: "center",
+                          }}
+                          onTouchEnd={() => {}}
+                        >
+                          <Checkbox
+                            onPress={() => {
+                              handleChangeExpertise(expertise.txt);
+                            }}
+                            status={checked ? "checked" : "unchecked"}
+                          />
+                          <Text style={{ color: checked ? "blue" : "gray" }}>
+                            {expertise.txt}
+                          </Text>
+                        </View>
+                      );
+                    })}
+                  </Dialog.Content>
+
+                  <Dialog.Actions>
+                    <Button onPress={hideExpertiseDialog}>Done</Button>
+                  </Dialog.Actions>
+                </Dialog>
+              </Portal>
+            </View>
+
+            {show && (
+              <DateTimePicker
+                testID="dateTimePicker"
+                value={user.date}
+                mode={mode}
+                is24Hour={true}
+                onChange={onChangeDate}
+              />
+            )}
+          </View>
+
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity
+              onPress={() => {
+                console.log(expertises);
+                console.log(days);
+
+                handleSignUp();
+              }}
+              style={[styles.button, styles.buttonOutline]}
+            >
+              <Text style={styles.buttonOutlineText}>Register</Text>
+            </TouchableOpacity>
+          </View>
+        </KeyboardAvoidingView>
+      </ScrollView>
     </Provider>
   );
 };

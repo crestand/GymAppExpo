@@ -1,9 +1,34 @@
 import { StyleSheet, Text, View } from "react-native";
 import { TextInput, Button } from "react-native-paper";
 
-import React from "react";
+import React, { useState } from "react";
+import { executeQuery } from "../utils/quaries";
+import * as firebase from "firebase";
+import { uid } from "uid";
+import { validateFeedback } from "../utils/validation";
+import { auth } from "../firebaseConfig";
 
 const SendFeedbackScreen = () => {
+  const [feedback, setFeedback] = useState({
+    text: "",
+  });
+
+  const handleSendFeedback = () => {
+    if (validateFeedback(feedback.text)) {
+      console.log("Validated Feedback");
+      // console.log(feedback);
+      const feedbackData = {
+        id: uid(),
+        create_date: new Date(),
+        sender_id: auth.currentUser.uid,
+        workout_id: "get Workout Id",
+        feedback: feedback.text,
+      };
+      // console.log(feedbackData);
+      firebase.firestore().collection("feedback").add(feedbackData);
+    } else console.log("Invalid Feedback");
+  };
+
   return (
     <View style={styles.container}>
       <Text style={styles.titleText}>Feedback</Text>
@@ -15,9 +40,19 @@ const SendFeedbackScreen = () => {
           true;
         }}
         mode="outlined"
+        onChangeText={(text) => {
+          feedback.text = text;
+          setFeedback(feedback);
+        }}
       />
 
-      <Button style={styles.button} mode="contained" onPress={() => {}}>
+      <Button
+        style={styles.button}
+        mode="contained"
+        onPress={() => {
+          handleSendFeedback();
+        }}
+      >
         <Text style={styles.buttonText}>Send</Text>
       </Button>
     </View>

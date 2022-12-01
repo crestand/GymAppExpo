@@ -17,7 +17,6 @@ const createMeasurementTableQuery = `  CREATE TABLE measurement (
     weight INTEGER NOT NULL,
     height INTEGER NOT NULL,
     waist INTEGER NOT NULL,
-    back INTEGER NOT NULL,
     create_date TEXT NOT NULL,
     user_id INTEGER NOT NULL,
     FOREIGN KEY (user_id) 
@@ -54,7 +53,9 @@ const createTrainerTableQuery = `CREATE TABLE trainer (
             REFERENCES user (id)
   )`;
 
-function openDatabase() {
+const getAllTableQuery = "SELECT name FROM sqlite_schema";
+
+export function connectToDatabase() {
   if (
     !FileSystem.getInfoAsync(FileSystem.documentDirectory + "SQLite").exists
   ) {
@@ -65,7 +66,10 @@ function openDatabase() {
   return db;
 }
 
-function seedDatabase() {
-  openDatabase();
-  executeQuery("");
+async function seedDatabase() {
+  const schemaTables = await executeQuery(getAllTableQuery);
+
+  if (schemaTables["user"]) {
+    await executeQuery(createUserTableQuery);
+  }
 }

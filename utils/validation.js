@@ -3,7 +3,7 @@ export function validateUser(user) {
     validateEmail(user.email) &&
     validatePassword(user.password) &&
     validatePhoneNumber(user.phoneNumber) &&
-    validateMeasurments(user)
+    validateMeasurements(user)
   )
     return true;
   else false;
@@ -29,11 +29,14 @@ export function validateEmail(email) {
   }
 }
 
-export function validateMeasurments(user) {
-  if (user.waist < 1) return false;
-  if (user.shoulder < 1) return false;
-  if (user.weight < 1) return false;
-  if (user.height < 1) return false;
+export function validateMeasurements(user) {
+  let check = /^\d+\.\d+$|^\d+$/;
+
+  if (user.waist < 1 || !check.test(user.waist)) return false;
+  if (user.shoulder < 1 || !check.test(user.shoulder)) return false;
+  if (user.weight < 1 || !check.test(user.weight)) return false;
+  if (user.height < 1 || !check.test(user.height)) return false;
+  console.log(check.test(user.waist));
 
   return true;
 }
@@ -55,4 +58,8 @@ export function validatePhoneNumber(phoneNumber) {
     console.log("Invalid Phone Number");
     return false;
   }
+}
+
+export function validateFeedback(feedback) {
+  return feedback.length > 10 ? true : false;
 }

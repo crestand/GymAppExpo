@@ -12,6 +12,7 @@ import MyWorkoutsScreen from "./screens/MyWorkoutsScreen";
 import SendFeedbackScreen from "./screens/SendFeedbackScreen";
 import UserSignUpScreen from "./screens/UserSignUpScreen";
 import AdminScreen from "./screens/AdminScreen";
+import CreateWorkoutScreen from "./screens/CreateWorkoutScreen";
 import { useEffect } from "react";
 
 const Stack = createNativeStackNavigator();
@@ -36,6 +37,7 @@ export default function App() {
           <Stack.Screen name="SendFeedback" component={SendFeedbackScreen} />
           <Stack.Screen name="UserSignUp" component={UserSignUpScreen} />
           <Stack.Screen name="Admin" component={AdminScreen} />
+          <Stack.Screen name="CreateWorkout" component={CreateWorkoutScreen} />
         </Stack.Navigator>
       </NavigationContainer>
     </PaperProvider>

@@ -1,32 +1,62 @@
-import { StyleSheet, View, ScrollView } from "react-native";
+import { StyleSheet, View, ScrollView, FlatList } from "react-native";
 import React, { useState, useEffect, useCallback } from "react";
-import {
-  TextInput,
-  Button,
-  Text,
-  DataTable,
-  List,
-  Modal,
-  Portal,
-  Provider,
-} from "react-native-paper";
+import { TextInput, Button, Text } from "react-native-paper";
 import DateTimePicker from "@react-native-community/datetimepicker";
-
-const optionsPerPage = [2, 3, 4];
+import { validateMeasurements } from "../utils/validation";
+import * as firebase from "firebase";
+import { uid } from "uid";
+import { auth } from "../firebaseConfig";
+import { fetchFromCollection } from "../utils/firebaseOperations";
 
 const MeasurementsScreen = () => {
-  const [date, setDate] = useState(new Date(1598051730000));
-  const [show, setShow] = useState(false);
+  const [measurementList, setMeasurementList] = useState([]);
 
-  const onChange = (event, selectedDate) => {
-    const currentDate = selectedDate;
-    setShow(false);
-    setDate(currentDate);
+  useEffect(() => {
+    getMeasurements();
+  }, []);
+
+  const getMeasurements = async () => {
+    var fetchedItems = await (
+      await fetchFromCollection("measurement")
+    ).filter((x) => x.user_id == auth.currentUser.uid);
+    setMeasurementList(fetchedItems);
   };
 
+  const [measurement, setMeasurement] = useState({
+    date: new Date(),
+    waist: 0,
+    shoulder: 0,
+    weight: 0,
+    height: 0,
+  });
+
+  const handleSendMeasurement = () => {
+    if (validateMeasurements(measurement)) {
+      console.log("Validated Feedback");
+      const measurementData = {
+        id: uid(),
+        create_date: measurement.date,
+        user_id: auth.currentUser.uid,
+        weight: measurement.weight,
+        height: measurement.height,
+        waist: measurement.waist,
+        shoulder: measurement.shoulder,
+      };
+      // firebase.firestore().collection("measurement").add(measurementData);
+    } else console.log("Invalid Feedback");
+  };
+
+  const [show, setShow] = useState(false);
   const [mode, setMode] = useState("date");
 
+  const onChangeDate = (event, selectedDate) => {
+    measurement.date = selectedDate;
+    setMeasurement = measurement;
+    setShow(false);
+  };
+
   const showDatepicker = () => {
+    console.log(measurement.date.toLocaleDateString());
     showMode("date");
     setShow(true);
   };
@@ -34,39 +64,36 @@ const MeasurementsScreen = () => {
   const showMode = (currentMode) => {
     if (Platform.OS === "android") {
       setShow(false);
-      // for iOS, add a button that closes the picker
     }
     setMode(currentMode);
   };
 
-  ///// Data Table
-
-  const [page, setPage] = React.useState(0);
-  const [itemsPerPage, setItemsPerPage] = React.useState(optionsPerPage[0]);
-
-  useEffect(() => {
-    setPage(0);
-  }, [itemsPerPage]);
-
-  //// List
-  const [expanded, setExpanded] = React.useState(true);
-
-  const handlePress = () => setExpanded(!expanded);
-
-  /// Modal
-
-  const [visible, setVisible] = React.useState(false);
-
-  const showModal = () => setVisible(true);
-  const hideModal = () => setVisible(false);
-  const containerStyle = {
-    backgroundColor: "white",
-    padding: 10,
-    minHeight: "100%",
+  const renderList = (data) => {
+    return (
+      <View style={styles.measurementContainer}>
+        <View style={{ alignItems: "center" }}>
+          <Text style={styles.h2}>
+            Date :
+            {new Date(data.create_date?.seconds * 1000).toLocaleDateString()}
+          </Text>
+        </View>
+        <View style={styles.measurementContainerText}>
+          <Text style={styles.h1}>Height: {data.height}</Text>
+          <Text style={styles.h1}>Shoulder: {data.shoulder}</Text>
+        </View>
+        <View style={styles.measurementContainerText}>
+          <Text style={styles.h1}>Waist: {data.waist}</Text>
+          <Text style={styles.h1}>Height: {data.height}</Text>
+        </View>
+      </View>
+    );
   };
 
   return (
-    <ScrollView style={styles.container}>
+    // <ScrollView style={styles.container}>
+    <View style={{ flex: 1 }}>
+      <View style={{ flex: 1 }}></View>
+
       <View style={{ flex: 2 }}>
         <View
           style={[styles.avatarContainer, { flex: 0.5, flexDirection: "row" }]}
@@ -81,14 +108,24 @@ const MeasurementsScreen = () => {
           <TextInput
             placeholder="Cm"
             style={styles.input}
+            keyboardType="decimal-pad"
             activeUnderlineColor="white"
             mode="flat"
+            onChangeText={(text) => {
+              measurement.waist = text;
+              setMeasurement(measurement);
+            }}
           />
           <TextInput
             placeholder="Cm"
             style={styles.input}
+            keyboardType="decimal-pad"
             activeUnderlineColor="white"
             mode="flat"
+            onChangeText={(text) => {
+              measurement.shoulder = text;
+              setMeasurement(measurement);
+            }}
           />
         </View>
 
@@ -99,7 +136,7 @@ const MeasurementsScreen = () => {
           ]}
         >
           <Text style={styles.h1}>Weight</Text>
-          <Text style={styles.h1}>Date</Text>
+          <Text style={styles.h1}>Height</Text>
         </View>
 
         <View
@@ -108,54 +145,68 @@ const MeasurementsScreen = () => {
           <TextInput
             placeholder="kg"
             style={styles.input}
+            keyboardType="decimal-pad"
             activeUnderlineColor="white"
             mode="flat"
+            onChangeText={(text) => {
+              measurement.weight = text;
+              setMeasurement(measurement);
+            }}
           />
-          <Button
-            onPress={showDatepicker}
-            mode="contained"
-            style={styles.button}
-          >
-            <Text style={styles.h2}>{date.toLocaleDateString()}</Text>
-          </Button>
 
-          {show && (
-            <DateTimePicker
-              testID="dateTimePicker"
-              value={date}
-              mode={mode}
-              is24Hour={true}
-              onChange={onChange}
-            />
-          )}
+          <TextInput
+            placeholder="cm"
+            style={styles.input}
+            keyboardType="decimal-pad"
+            activeUnderlineColor="white"
+            mode="flat"
+            onChangeText={(text) => {
+              measurement.height = text;
+              setMeasurement(measurement);
+            }}
+          />
         </View>
       </View>
-      <View style={{ flex: 0.5, marginTop: 20 }}>
+      <View
+        style={{
+          flex: 0.5,
+          marginTop: 20,
+          flexDirection: "row",
+          justifyContent: "center",
+        }}
+      >
         <Button onPress={showDatepicker} mode="contained" style={styles.button}>
+          <Text style={styles.h2}>{measurement.date.toLocaleDateString()}</Text>
+        </Button>
+
+        {show && (
+          <DateTimePicker
+            testID="dateTimePicker"
+            value={measurement.date}
+            mode={mode}
+            is24Hour={true}
+            onChange={onChangeDate}
+          />
+        )}
+
+        <Button
+          onPress={handleSendMeasurement}
+          mode="contained"
+          style={styles.button}
+        >
           <Text style={styles.h2}>SAVE</Text>
         </Button>
       </View>
 
-      <View style={{ flex: 2, flexDirection: "row" }}>
-        <View style={[{ flex: 1 }]}>
-          <Provider>
-            <Portal>
-              <Modal
-                visible={visible}
-                onDismiss={hideModal}
-                contentContainerStyle={containerStyle}
-              >
-                <Text>Example Modal. Click outside this area to dismiss.</Text>
-              </Modal>
-            </Portal>
-            <Button style={{ marginTop: 0 }} onPress={showModal}>
-              Show
-            </Button>
-          </Provider>
-        </View>
+      <View style={{ flex: 4 }}>
+        <FlatList
+          data={measurementList}
+          keyExtractor={(item) => item.id.toString()}
+          renderItem={({ item }) => renderList(item)}
+        ></FlatList>
       </View>
-      <View style={{ flex: 1 }}></View>
-    </ScrollView>
+      <View style={{ flex: 0.5 }}></View>
+    </View>
   );
 };
 
@@ -169,6 +220,7 @@ const styles = StyleSheet.create({
   avatarContainer: {
     justifyContent: "center",
     alignItems: "center",
+    justifyContent: "space-evenly",
   },
   avatar: {
     marginTop: 50,
@@ -182,8 +234,8 @@ const styles = StyleSheet.create({
     fontSize: 20,
     // margin: 5,
     // marginTop: 10,
-    alignSelf: "flex-end",
-    marginHorizontal: 35,
+    alignSelf: "auto",
+    // marginHorizontal: 35,
   },
   h2: {
     fontWeight: "600",
@@ -210,8 +262,17 @@ const styles = StyleSheet.create({
     // minHeight: '90%',
     // maxHeight: '100%',
   },
-  dataTable: {
-    maxHeight: "100%",
+  measurementContainer: {
     width: "90%",
+    alignSelf: "center",
+    borderRadius: 10,
+    backgroundColor: "#150050",
+    overflow: "hidden",
+    padding: 10,
+    marginVertical: 10,
+  },
+  measurementContainerText: {
+    flexDirection: "row",
+    justifyContent: "space-evenly",
   },
 });

@@ -20,86 +20,14 @@ import {
   Checkbox,
 } from "react-native-paper";
 import DateTimePicker from "@react-native-community/datetimepicker";
-import * as SQLite from "expo-sqlite";
-import * as FileSystem from "expo-file-system";
 import { validateUser } from "../utils/validation";
-
-function openDatabase() {
-  if (
-    !FileSystem.getInfoAsync(FileSystem.documentDirectory + "SQLite").exists
-  ) {
-    FileSystem.makeDirectoryAsync(FileSystem.documentDirectory + "SQLite");
-  }
-
-  console.log("before db creation");
-  const db = SQLite.openDatabase("MainDB.db");
-  console.log("after db creation");
-  console.log(db);
-
-  return db;
-}
-
-// const db = openDatabase();
+import * as firebase from "firebase";
+import { uid } from "uid";
 
 const UserSignUpScreen = () => {
   const navigation = useNavigation();
 
-  // const db = SQLite.openDatabase(
-  //     {
-  //         name: 'MainDB',
-  //         location: 'default',
-  //     },
-  //     () => { },
-  //     error => { console.log(error) }
-
-  // );
-
-  useEffect(() => {
-    // createTable();
-    // setData();
-    // getData();
-  }, []);
-
-  const createTable = () => {
-    db.transaction((tx) => {
-      tx.executeSql(
-        "create table if not exists Users (id integer primary key autoincrement, NAme TEXT, Age INTEGER);"
-      );
-    });
-  };
-
-  const setData = async () => {
-    try {
-      await db.transaction(async (tx) => {
-        await tx.executeSql(
-          "insert into Users (name,Age) VALUES (?,?);",
-          ["Eren", 15],
-          (tx, results) => {
-            console.log("after insert success");
-          }
-        );
-      }, console.log("after insert"));
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  const getData = () => {
-    try {
-      db.transaction((tx) => {
-        tx.executeSql("SELECT Name, Age FROM Users", [], (tx, results) => {
-          var len = results.rows.length;
-          if (len > 0) {
-            var userName = results.rows.item(0).NAme;
-            var userAge = results.rows.item(0).Age;
-            console.log("From db Name: " + userName + " Age: " + userAge);
-          }
-        });
-      }, console.log("after get data"));
-    } catch (error) {
-      console.log(error);
-    }
-  };
+  useEffect(() => {}, []);
 
   const [user, setUser] = useState({
     name: "",
@@ -115,18 +43,49 @@ const UserSignUpScreen = () => {
     height: 0,
   });
 
-  const handleSignUp = () => {
+  const handleSignUp = async () => {
     if (validateUser(user)) {
-      console.log("Validated");
-    } else console.log("not valid");
+      console.log("Validated User");
+      // console.log(user);
+      let originalUser = auth.currentUser;
+      //console.log(originalUser);
+      auth
+        .createUserWithEmailAndPassword(user.email, user.password)
+        .then((userCredentials) => {
+          const userData = {
+            id: userCredentials.user.uid,
+            name: user.name,
+            lastName: user.lastName,
+            email: user.email,
+            gender: user.gender,
+            birthDate: user.date,
+            phoneNumber: user.phoneNumber,
+            role: "user",
+          };
+          const measurementData = {
+            id: uid(),
+            weight: user.weight,
+            height: user.height,
+            waist: user.waist,
+            shoulder: user.shoulder,
+            create_date: new Date(),
+            user_id: userCredentials.user.uid,
+          };
+          // console.log(userData);
+          // console.log(measurementData);
+          firebase.firestore().collection("user").add(userData);
+          firebase.firestore().collection("measurement").add(measurementData);
+          // console.log(auth.currentUser);
+          // console.log(auth.currentUser);
+        })
+        .catch((error) => alert(error.message));
+      console.log(auth.currentUser);
+      console.log(originalUser);
+      auth.updateCurrentUser(originalUser);
+      console.log(auth.currentUser);
+    } else console.log("invalid user info");
     // if (validateUser(user)) {
-    //   auth
-    //     .createUserWithEmailAndPassword(user.email, user.password)
-    //     .then((userCredentials) => {
-    //       const user = userCredentials.user;
-    //       console.log("Registered with:", user.email);
-    //     })
-    //     .catch((error) => alert(error.message));
+
     // }
   };
 
@@ -279,8 +238,6 @@ const UserSignUpScreen = () => {
             <TouchableOpacity
               onPress={() => {
                 handleSignUp();
-                // console.log(user.name);
-                // console.log(user.date);
               }}
               style={[styles.button, styles.buttonOutline]}
             >
