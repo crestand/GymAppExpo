@@ -79,10 +79,10 @@ const UserSignUpScreen = () => {
           // console.log(auth.currentUser);
         })
         .catch((error) => alert(error.message));
-      console.log(auth.currentUser);
-      console.log(originalUser);
-      auth.updateCurrentUser(originalUser);
-      console.log(auth.currentUser);
+      // console.log(auth.currentUser);
+      // console.log(originalUser);
+      // auth.updateCurrentUser(originalUser);
+      // console.log(auth.currentUser);
     } else console.log("invalid user info");
     // if (validateUser(user)) {
 

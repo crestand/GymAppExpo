@@ -32,7 +32,7 @@ const MeasurementsScreen = () => {
 
   const handleSendMeasurement = () => {
     if (validateMeasurements(measurement)) {
-      console.log("Validated Feedback");
+      console.log("Validated Measurement");
       const measurementData = {
         id: uid(),
         create_date: measurement.date,
@@ -42,7 +42,7 @@ const MeasurementsScreen = () => {
         waist: measurement.waist,
         shoulder: measurement.shoulder,
       };
-      // firebase.firestore().collection("measurement").add(measurementData);
+      firebase.firestore().collection("measurement").add(measurementData);
     } else console.log("Invalid Feedback");
   };
 
@@ -83,7 +83,7 @@ const MeasurementsScreen = () => {
         </View>
         <View style={styles.measurementContainerText}>
           <Text style={styles.h1}>Waist: {data.waist}</Text>
-          <Text style={styles.h1}>Height: {data.height}</Text>
+          <Text style={styles.h1}>Weight: {data.weight}</Text>
         </View>
       </View>
     );

@@ -208,7 +208,7 @@ const TranierSignUpScreen = () => {
             </View>
 
             <TextInput
-              placeholder="Phone Number"
+              placeholder="0 5xx xxx xx"
               style={styles.input}
               onChangeText={(text) => {
                 user.phoneNumber = text;
@@ -310,8 +310,8 @@ const TranierSignUpScreen = () => {
           <View style={styles.buttonContainer}>
             <TouchableOpacity
               onPress={() => {
-                console.log(expertises);
-                console.log(days);
+                console.log(user);
+                // console.log(days);
 
                 handleSignUp();
               }}

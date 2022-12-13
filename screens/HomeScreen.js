@@ -53,7 +53,7 @@ const HomeScreen = () => {
         <Text style={styles.buttonText}>Sign Out</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity
+      {/* <TouchableOpacity
         style={styles.button}
         onPress={async () => {
           await Sharing.shareAsync(
@@ -82,7 +82,7 @@ const HomeScreen = () => {
         }}
       >
         <Text style={styles.buttonText}>TEST</Text>
-      </TouchableOpacity>
+      </TouchableOpacity> */}
     </View>
   );
 };
